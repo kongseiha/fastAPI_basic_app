@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <!-- Favicon -->
+    <link rel="icon" href="public/upload/image/epos.png" type="image/png">
+    <link rel="apple-touch-icon" href="public/upload/image/epos.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --success: #06d6a0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+            
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #e26c6c 100%);
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 15px;
+        }
+
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: rgba(6, 214, 160, 0.1);
+            color: #06d6a0;
+            border: 1px solid rgba(6, 214, 160, 0.2);
+        }
+
+        .status-badge.disconnected {
+            background: rgba(239, 71, 111, 0.1);
+            color: #ef476f;
+            border-color: rgba(239, 71, 111, 0.2);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f3f9;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-card {
+            background: white;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .user-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
+        }
+
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-id {
+            background: #f1f3f9;
+            color: #6c757d;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .user-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(67, 97, 238, 0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .detail-content {
+            flex: 1;
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            font-size: 0.9rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .btn-action {
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-edit {
+            background: rgba(255, 209, 102, 0.1);
+            color: #e6ac00;
+            border: 1px solid rgba(255, 209, 102, 0.2);
+        }
+
+        .btn-edit:hover {
+            background: rgba(255, 209, 102, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .btn-delete {
+            background: rgba(239, 71, 111, 0.1);
+            color: #ef476f;
+            border: 1px solid rgba(239, 71, 111, 0.2);
+        }
+
+        .btn-delete:hover {
+            background: rgba(239, 71, 111, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .input-group-compact {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .form-control-compact {
+            padding: 10px 14px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        .form-control-compact:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .btn-add {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-add:hover {
+            background: #3a56d4;
+            transform: translateY(-1px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: #6c757d;
+        }
+
+        .empty-icon {
+            font-size: 2.5rem;
+            color: #dee2e6;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .user-count {
+            background: var(--primary);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .btn-refresh {
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .connection-info {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Pagination Styles */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .page-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .page-btn:hover:not(.disabled):not(.active) {
+            background: #f8f9fa;
+            border-color: var(--primary);
+        }
+
+        .page-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .page-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin: 0 10px;
+        }
+
+        /* Search Styles */
+        .search-container {
+            margin-bottom: 15px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            padding: 10px 14px 10px 40px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+            outline: none;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .clear-search {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            display: none;
+        }
+
+        .clear-search:hover {
+            color: var(--danger);
+        }
+
+        .search-info {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .user-details {
+                grid-template-columns: 1fr;
+            }
+
+            .input-group-compact {
+                flex-direction: column;
+            }
+
+            .btn-add {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .pagination-container {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="glass-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h4 style="font-weight: 700; color: var(--dark); margin: 0;">
+                        <i class="bi bi-people-fill me-2" style="color: var(--primary);"></i>
+                        User Manager
+                    </h4>
+                    <div class="connection-info">
+                        <i class="bi bi-server"></i>
+                        <span id="apiUrl">http://127.0.0.1:8000/users</span>
+
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="status-badge" id="connectionStatus">
+                        <i class="bi bi-wifi"></i>
+                        <span>Checking...</span>
+                    </div>
+                    <button class="btn btn-outline-primary btn-refresh" onclick="loadUsers()">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add User Form -->
+        <div class="glass-card">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="bi bi-person-add"></i>
+                    Add New User
+                </div>
+            </div>
+
+            <div class="input-group-compact">
+                <input type="text" id="name" class="form-control-compact" placeholder="Full Name">
+                <input type="number" id="age" class="form-control-compact" placeholder="Age" min="1" max="120">
+                <input type="tel" id="phone" class="form-control-compact" placeholder="Phone">
+                <input type="email" id="email" class="form-control-compact" placeholder="Email">
+                <button class="btn-add" onclick="addUser()">
+                    <i class="bi bi-plus-circle"></i>
+                    Add User
+                </button>
+            </div>
+        </div>
+
+        <!-- Users List -->
+        <div class="glass-card">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="bi bi-people"></i>
+                    Users List
+                    <span class="user-count" id="userCount">0</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="testConnection()">
+                        <i class="bi bi-plug"></i>
+                        Test API
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Box -->
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" id="searchInput" class="search-input"
+                        placeholder="Search users by name, phone, email..." oninput="handleSearch()">
+                    <button class="clear-search" id="clearSearch" onclick="clearSearch()">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+                <div class="search-info" id="searchInfo">
+                    <i class="bi bi-info-circle"></i>
+                    <span>Type to search users...</span>
+                </div>
+            </div>
+
+            <!-- Users Container -->
+            <div id="usersContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p style="color: #6c757d; margin-top: 10px;">Loading users...</p>
+                </div>
+            </div>
+
+            <!-- Pagination (Initially Hidden) -->
+            <div class="pagination-container" id="paginationContainer" style="display: none;">
+                <button class="page-btn" id="firstPage" onclick="goToPage(1)" disabled>
+                    <i class="bi bi-chevron-double-left"></i>
+                </button>
+                <button class="page-btn" id="prevPage" onclick="prevPage()" disabled>
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+
+                <div class="page-info">
+                    Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+                </div>
+
+                <button class="page-btn" id="nextPage" onclick="nextPage()" disabled>
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <button class="page-btn" id="lastPage" onclick="goToLastPage()" disabled>
+                    <i class="bi bi-chevron-double-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+        const API_URL = `${API_BASE_URL}/users`;
+
+        // State
+        let currentUsers = [];
+        let filteredUsers = [];
+        let currentPage = 1;
+        const itemsPerPage = 5;
+        let searchTerm = '';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            checkConnection();
+            loadUsers();
+        });
+
+       
+        // Load users from API
+        async function loadUsers() {
+            const container = document.getElementById('usersContainer');
+
+            try {
+                container.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p style="color: #6c757d; margin-top: 10px;">Loading users...</p>
+                    </div>
+                `;
+
+                const response = await fetch(API_URL);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                currentUsers = await response.json();
+                filteredUsers = [...currentUsers];
+
+                // Reset search and pagination
+                searchTerm = '';
+                document.getElementById('searchInput').value = '';
+                document.getElementById('clearSearch').style.display = 'none';
+                document.getElementById('searchInfo').innerHTML = `
+                    <i class="bi bi-info-circle"></i>
+                    <span>Type to search users...</span>
+                `;
+
+                // Apply pagination if more than 5 users
+                applyPagination();
+
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                        <h6 style="color: var(--dark); margin-bottom: 8px;">Connection Error</h6>
+                        <p style="color: #6c757d; font-size: 0.9rem; margin-bottom: 15px;">${error.message}</p>
+                        <button class="btn btn-sm btn-primary" onclick="checkConnection()">
+                            <i class="bi bi-wifi"></i> Reconnect
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Handle search input
+        function handleSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearSearch');
+            const searchInfo = document.getElementById('searchInfo');
+
+            searchTerm = searchInput.value.toLowerCase().trim();
+
+            if (searchTerm.length > 0) {
+                clearBtn.style.display = 'block';
+            } else {
+                clearBtn.style.display = 'none';
+            }
+
+            // Filter users based on search term
+            filteredUsers = currentUsers.filter(user =>
+                user.name.toLowerCase().includes(searchTerm) ||
+                user.email.toLowerCase().includes(searchTerm) ||
+                user.phone.toLowerCase().includes(searchTerm) ||
+                user.id.toString().includes(searchTerm) ||
+                user.age.toString().includes(searchTerm)
+            );
+
+            // Update search info
+            if (searchTerm.length > 0) {
+                searchInfo.innerHTML = `
+                    <i class="bi bi-search"></i>
+                    <span>Found ${filteredUsers.length} user(s) matching "${searchTerm}"</span>
+                `;
+            } else {
+                searchInfo.innerHTML = `
+                    <i class="bi bi-info-circle"></i>
+                    <span>Type to search users...</span>
+                `;
+            }
+
+            // Reset to first page and apply pagination
+            currentPage = 1;
+            applyPagination();
+        }
+
+        // Clear search
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearSearch').style.display = 'none';
+            handleSearch();
+        }
+
+        // Apply pagination and display users
+        function applyPagination() {
+            const container = document.getElementById('usersContainer');
+            const pagination = document.getElementById('paginationContainer');
+            const userCount = document.getElementById('userCount');
+
+            userCount.textContent = filteredUsers.length;
+
+            // Show/hide pagination based on user count
+            if (filteredUsers.length > itemsPerPage) {
+                pagination.style.display = 'flex';
+                updatePaginationControls();
+            } else {
+                pagination.style.display = 'none';
+            }
+
+            // Calculate pagination
+            const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const usersToDisplay = filteredUsers.slice(startIndex, endIndex);
+
+            // Display users
+            displayUsers(usersToDisplay);
+
+            // Update pagination info
+            document.getElementById('currentPage').textContent = currentPage;
+            document.getElementById('totalPages').textContent = totalPages;
+
+            // Update pagination button states
+            updatePaginationControls();
+        }
+
+        // Update pagination controls
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+
+            // First page button
+            document.getElementById('firstPage').disabled = currentPage === 1;
+            document.getElementById('firstPage').className = currentPage === 1 ? 'page-btn disabled' : 'page-btn';
+
+            // Previous page button
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('prevPage').className = currentPage === 1 ? 'page-btn disabled' : 'page-btn';
+
+            // Next page button
+            document.getElementById('nextPage').disabled = currentPage === totalPages || totalPages === 0;
+            document.getElementById('nextPage').className = (currentPage === totalPages || totalPages === 0) ? 'page-btn disabled' : 'page-btn';
+
+            // Last page button
+            document.getElementById('lastPage').disabled = currentPage === totalPages || totalPages === 0;
+            document.getElementById('lastPage').className = (currentPage === totalPages || totalPages === 0) ? 'page-btn disabled' : 'page-btn';
+        }
+
+        // Go to specific page
+        function goToPage(page) {
+            const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+
+            if (page >= 1 && page <= totalPages && page !== currentPage) {
+                currentPage = page;
+                applyPagination();
+            }
+        }
+
+        // Go to next page
+        function nextPage() {
+            const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                applyPagination();
+            }
+        }
+
+        // Go to previous page
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                applyPagination();
+            }
+        }
+
+        // Go to last page
+        function goToLastPage() {
+            const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+            if (currentPage !== totalPages) {
+                currentPage = totalPages;
+                applyPagination();
+            }
+        }
+
+        // Display users in UI
+        function displayUsers(users) {
+            const container = document.getElementById('usersContainer');
+
+            if (!users || users.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <h6 style="color: var(--dark); margin-bottom: 8px;">No Users Found</h6>
+                        <p style="color: #6c757d; font-size: 0.9rem;">
+                            ${searchTerm ? `No users match "${searchTerm}"` : 'Add your first user above'}
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            let usersHTML = '';
+
+            users.forEach(user => {
+                usersHTML += `
+                    <div class="user-card" id="user-card-${user.id}">
+                        <div class="user-header">
+                            <h5 class="user-name">
+                                <i class="bi bi-person-circle"></i>
+                                ${user.name}
+                            </h5>
+                            <span class="user-id">ID: ${user.id}</span>
+                        </div>
+                        
+                        <div class="user-details">
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="bi bi-calendar3"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Age</div>
+                                    <div class="detail-value">${user.age} years</div>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="bi bi-telephone"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Phone</div>
+                                    <div class="detail-value">${user.phone}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="bi bi-envelope"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Email</div>
+                                    <div class="detail-value">${user.email}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="user-actions">
+                            <button class="btn-action btn-edit" onclick="editUser(${user.id})">
+                                <i class="bi bi-pencil"></i>
+                                Edit
+                            </button>
+                            <button class="btn-action btn-delete" onclick="confirmDelete(${user.id}, '${user.name}')">
+                                <i class="bi bi-trash"></i>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = usersHTML;
+        }
+
+        // Add new user
+        async function addUser() {
+            const name = document.getElementById('name').value.trim();
+            const age = document.getElementById('age').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+
+            // Validation
+            if (!name || !age || !phone || !email) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Missing Information',
+                    text: 'Please fill in all fields',
+                    confirmButtonColor: '#4361ee'
+                });
+                return;
+            }
+
+            if (isNaN(age) || parseInt(age) < 1 || parseInt(age) > 120) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Age',
+                    text: 'Please enter a valid age between 1 and 120',
+                    confirmButtonColor: '#4361ee'
+                });
+                return;
+            }
+
+            try {
+                const userData = {
+                    name: name,
+                    age: parseInt(age),
+                    phone: phone,
+                    email: email
+                };
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || `HTTP ${response.status}`);
+                }
+
+                // Clear form
+                document.getElementById('name').value = '';
+                document.getElementById('age').value = '';
+                document.getElementById('phone').value = '';
+                document.getElementById('email').value = '';
+
+                // Show success
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'User added successfully',
+                    showConfirmButton: false,
+                    timer: 1000
+                });
+
+                // Reload users
+                loadUsers();
+
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message,
+                    confirmButtonColor: '#4361ee'
+                });
+            }
+        }
+        
+        // Clean and Modern Edit User Function
+        async function editUser(userId) {
+            try {
+                const user = currentUsers.find(u => u.id === userId);
+                if (!user) return;
+
+                const { value: formValues } = await Swal.fire({
+                    title: `<div style="font-size: 1.4rem; font-weight: 600; color: #2b2d42; margin-bottom: 5px;">Edit User</div>
+                    <div style="font-size: 0.9rem; color: #6c757d;">Update ${user.name}'s information</div>`,
+                    html: `
+                <div class="swal-form">
+                    <div class="form-group">
+                        <label><i class="bi bi-person"></i> Full Name</label>
+                        <input id="swal-name" class="swal-input" value="${user.name}" placeholder="Enter name">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label><i class="bi bi-calendar"></i> Age</label>
+                            <input id="swal-age" type="number" class="swal-input" value="${user.age}" placeholder="Age" min="1" max="120">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="bi bi-phone"></i> Phone</label>
+                            <input id="swal-phone" class="swal-input" value="${user.phone}" placeholder="Phone number">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="bi bi-envelope"></i> Email</label>
+                        <input id="swal-email" type="email" class="swal-input" value="${user.email}" placeholder="Email address">
+                    </div>
+                </div>
+                
+                <style>
+                    .swal-form {
+                        margin-top: 20px;
+                    }
+                    
+                    .form-group {
+                        margin-bottom: 18px;
+                    }
+                    
+                    .form-group label {
+                        display: block;
+                        font-weight: 600;
+                        color: #4a5568;
+                        margin-bottom: 8px;
+                        font-size: 0.9rem;
+                    }
+                    
+                    .form-group label i {
+                        margin-right: 8px;
+                        color: #4361ee;
+                    }
+                    
+                    .swal-input {
+                        width: 100%;
+                        padding: 10px 14px;
+                        border: 2px solid #e2e8f0;
+                        border-radius: 8px;
+                        font-size: 0.95rem;
+                        transition: all 0.2s;
+                        background: #f8fafc;
+                    }
+                    
+                    .swal-input:focus {
+                        border-color: #4361ee;
+                        background: white;
+                        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+                        outline: none;
+                    }
+                </style>
+            `,
+                    width: '450px',
+                    padding: '25px',
+                    showCancelButton: true,
+                    confirmButtonText: `
+                <span style="display: flex; align-items: center; gap: 6px;">
+                    <i class="bi bi-check-lg"></i>
+                    Save
+                </span>
+            `,
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#06d6a0',
+                    cancelButtonColor: '#94a3b8',
+                    reverseButtons: true,
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-edit-modal'
+                    },
+                    preConfirm: () => {
+                        return {
+                            name: document.getElementById('swal-name').value.trim(),
+                            age: document.getElementById('swal-age').value.trim(),
+                            phone: document.getElementById('swal-phone').value.trim(),
+                            email: document.getElementById('swal-email').value.trim()
+                        };
+                    },
+                    didOpen: () => {
+                        setTimeout(() => document.getElementById('swal-name').focus(), 100);
+                    }
+                });
+
+                if (!formValues) return;
+
+                // Simple validation
+                if (!formValues.name || !formValues.age || !formValues.phone || !formValues.email) {
+                    Swal.showValidationMessage('All fields are required');
+                    return false;
+                }
+
+                if (isNaN(formValues.age) || formValues.age < 1 || formValues.age > 120) {
+                    Swal.showValidationMessage('Please enter a valid age (1-120)');
+                    return false;
+                }
+
+                if (!formValues.email.includes('@')) {
+                    Swal.showValidationMessage('Please enter a valid email address');
+                    return false;
+                }
+
+                // Prepare data
+                const updatedUser = {
+                    id: userId,
+                    name: formValues.name,
+                    age: parseInt(formValues.age),
+                    phone: formValues.phone,
+                    email: formValues.email
+                };
+
+                // Show loading
+                Swal.fire({
+                    title: '<div class="spinner" style="margin: 0 auto;"></div>',
+                    html: '<div style="margin-top: 15px;">Updating user...</div>',
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    willOpen: () => Swal.showLoading()
+                });
+
+                // Update user
+                const response = await fetch(`${API_URL}/${userId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedUser)
+                });
+
+                if (!response.ok) throw new Error('Update failed');
+
+                // Success
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Updated!',
+                    text: 'User information has been updated.',
+                    timer: 1000,
+                    showConfirmButton: false,
+                    willClose: () => loadUsers()
+                });
+
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to update user. Please try again.',
+                    confirmButtonColor: '#ef476f'
+                });
+            }
+        }
+
+        // Confirm delete with SweetAlert2
+        async function confirmDelete(userId, userName) {
+            const { isConfirmed } = await Swal.fire({
+                title: 'Delete User?',
+                html: `Are you sure you want to delete <strong>${userName}</strong>?<br><small class="text-muted">This action cannot be undone.</small>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#ef476f',
+                cancelButtonColor: '#4361ee',
+                confirmButtonText: 'Yes, delete it',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                focusCancel: true
+            });
+
+            if (isConfirmed) {
+                await deleteUser(userId, userName);
+            }
+        }
+
+        // Delete user
+        async function deleteUser(userId, userName) {
+            const userCard = document.getElementById(`user-card-${userId}`);
+
+            try {
+                // Disable button and show loading
+                if (userCard) {
+                    userCard.style.opacity = '0.7';
+                    userCard.style.pointerEvents = 'none';
+                }
+
+                const response = await fetch(`${API_URL}/${userId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete user');
+                }
+
+                // Remove from current users array
+                currentUsers = currentUsers.filter(user => user.id !== userId);
+                filteredUsers = filteredUsers.filter(user => user.id !== userId);
+
+                // Animate removal
+                if (userCard) {
+                    userCard.style.transition = 'all 0.3s ease';
+                    userCard.style.transform = 'translateX(-100%)';
+                    userCard.style.opacity = '0';
+                    userCard.style.margin = '0';
+                    userCard.style.padding = '0';
+                    userCard.style.height = '0';
+
+                    setTimeout(() => {
+                        if (userCard.parentNode) {
+                            userCard.parentNode.removeChild(userCard);
+                            applyPagination(); // Re-apply pagination after deletion
+                        }
+                    }, 300);
+                }
+
+                // Show success
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Deleted!',
+                    text: `"${userName}" has been deleted.`,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+
+            } catch (error) {
+                console.error('Delete error:', error);
+
+                // Reset card state
+                if (userCard) {
+                    userCard.style.opacity = '1';
+                    userCard.style.pointerEvents = 'auto';
+                    userCard.style.transform = '';
+                }
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Delete Failed',
+                    text: error.message,
+                    confirmButtonColor: '#4361ee'
+                });
+            }
+        }
+
+        // Test API connection
+        async function testConnection() {
+            const status = document.getElementById('connectionStatus');
+            const originalText = status.innerHTML;
+
+            status.innerHTML = '<i class="bi bi-hourglass"></i> <span>Testing...</span>';
+
+            try {
+                const response = await fetch(API_URL);
+
+                if (response.ok) {
+                    status.innerHTML = '<i class="bi bi-check-circle"></i> <span>Connected</span>';
+                    status.className = 'status-badge';
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'API Connected',
+                        text: 'Successfully connected to the server',
+                        showConfirmButton: false,
+                        timer: 1000
+                    });
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                status.innerHTML = '<i class="bi bi-x-circle"></i> <span>Disconnected</span>';
+                status.className = 'status-badge disconnected';
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Connection Failed',
+                    text: error.message,
+                    confirmButtonColor: '#4361ee'
+                });
+            }
+        }
+   
+         // Check API connection
+        async function checkConnection() {
+            const status = document.getElementById('connectionStatus');
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (response.ok) {
+                    status.innerHTML = '<i class="bi bi-wifi"></i> <span>Connected</span>';
+                    status.className = 'status-badge';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                status.innerHTML = '<i class="bi bi-wifi-off"></i> <span>Disconnected</span>';
+                status.className = 'status-badge disconnected';
+            }
+        }
+
+    </script>
+</body>
+
+</html>
