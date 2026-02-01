@@ -5,10 +5,10 @@ from fastapi.staticfiles import StaticFiles
 import os
 
 # Import database and router
-from app.database import create_db, engine, SessionLocal
+from app.database import engine, SessionLocal
 from app.model import User
 from app.routes.user import router
-from sqlmodel import SQLModel, select
+from sqlmodel import SQLModel
 
 app = FastAPI(
     title="User Management System",
@@ -35,8 +35,8 @@ def startup_event():
     
     # Add sample data
     with SessionLocal() as session:
-        # Check if we have any users
-        users = session.exec(select(User)).all()
+        # FIXED: Use query() instead of exec()
+        users = session.query(User).all()
         
         if not users:
             print("📝 Adding sample users...")
@@ -44,8 +44,6 @@ def startup_event():
                 User(name="John Doe", age=30, phone="1234567890", email="john@example.com"),
                 User(name="Jane Smith", age=25, phone="0987654321", email="jane@example.com"),
                 User(name="Bob Wilson", age=35, phone="5551234567", email="bob@example.com"),
-                User(name="Alice Johnson", age=28, phone="4445556666", email="alice@example.com"),
-                User(name="Charlie Brown", age=40, phone="7778889999", email="charlie@example.com"),
             ]
             
             for user in sample_users:
@@ -76,18 +74,17 @@ async def serve_homepage():
                 <body style="font-family: Arial; padding: 40px; text-align: center;">
                     <h1>⚠️ index.html not found</h1>
                     <p>Current directory: {os.getcwd()}</p>
-                    <p>Files available: {', '.join(os.listdir('.'))}</p>
                 </body>
             </html>
             """,
             status_code=404
         )
 
-# Health check endpoint with database info
+# Health check endpoint - ALSO FIX THIS
 @app.get("/health")
 async def health_check():
     with SessionLocal() as session:
-        user_count = len(session.exec(select(User)).all())
+        user_count = session.query(User).count()
     
     return {
         "status": "healthy", 
