@@ -551,8 +551,14 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // Configuration
-        const API_BASE_URL = 'http://127.0.0.1:8000';
+        // Configuration// Use relative URL for production
+        const API_BASE_URL = window.location.origin;
+        const API_URL = `${API_BASE_URL}/users`;
+
+        // Also update the display
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('apiUrl').textContent = `${API_BASE_URL}/users`;
+        }); const API_BASE_URL = 'http://127.0.0.1:8000';
         const API_URL = `${API_BASE_URL}/users`;
 
         // State

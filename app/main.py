@@ -1,21 +1,27 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 import os
 
 # Import database and router
 from app.database import create_db
-from app.routes.user import router  # Import router from user.py
+from app.routes.user import router
 
-app = FastAPI(title="User Management System", version="1.0.0")
+app = FastAPI(
+    title="User Management System",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
 
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Create database tables on startup
@@ -26,6 +32,9 @@ def startup_event():
 
 # Include users router
 app.include_router(router)
+
+# Serve static files for Render
+app.mount("/static", StaticFiles(directory="."), name="static")
 
 # Serve HTML file
 @app.get("/", response_class=HTMLResponse)
@@ -41,7 +50,7 @@ async def serve_homepage():
                 <body style="font-family: Arial; padding: 40px; text-align: center;">
                     <h1>⚠️ index.html not found</h1>
                     <p>Current directory: {os.getcwd()}</p>
-                    <p>Make sure index.html is in the same directory as main.py</p>
+                    <p>Files available: {', '.join(os.listdir('.'))}</p>
                 </body>
             </html>
             """,
@@ -54,19 +63,17 @@ async def health_check():
     return {
         "status": "healthy", 
         "message": "User Management API is running",
-        "database": "database.db"
+        "service": "fastapi_basic_app",
+        "environment": os.getenv("RENDER", "development")
     }
 
+# Only run with uvicorn directly in development
 if __name__ == "__main__":
     import uvicorn
-    print("🚀 Starting User Management System...")
-    print("📁 Current directory:", os.getcwd())
-    print("📄 Your files:")
-    for file in os.listdir('.'):
-        print(f"  - {file}")
-    if os.path.exists('app'):
-        print("📁 Files in app directory:")
-        for file in os.listdir('app'):
-            print(f"  - {file}")
-    print("🌐 Server will run at: http://127.0.0.1:8000")
-    uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)
+    print("🚀 Starting in development mode...")
+    uvicorn.run(
+        "app.main:app",
+        host="127.0.0.1",
+        port=8000,
+        reload=True
+    )
